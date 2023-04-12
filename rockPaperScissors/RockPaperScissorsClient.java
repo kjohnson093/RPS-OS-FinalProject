@@ -70,7 +70,8 @@ public class RockPaperScissorsClient {
 		rockButton.setIcon(new ImageIcon("rockPaperScissors/rock.png"));
 		rockButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				out.print("MOVE"+0);
+				out.println("MOVE0 ");
+				//System.out.print("rock was sent");
 				currentOption = optionLabels[0];
 				
 			}
@@ -82,7 +83,8 @@ public class RockPaperScissorsClient {
 		paperButton.setIcon(new ImageIcon("rockPaperScissors/paper.png"));
 		paperButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				out.print("MOVE"+1);
+				out.println("MOVE1 ");
+				System.out.print("paper was sent");
 				currentOption = optionLabels[1];
 			}
 		});
@@ -94,6 +96,7 @@ public class RockPaperScissorsClient {
 		scissorsButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				out.print("MOVE"+2);
+				System.out.print("scissors was sent");
 				currentOption = optionLabels[2];
 			}
 		});
@@ -120,7 +123,7 @@ public class RockPaperScissorsClient {
 				} 
 				//looks for validation from server to see if the opponent has moved
 				else if (response.startsWith("VALID_MOVE")) {
-					int id = Integer.parseInt(response.substring(14));
+					int id = Integer.parseInt(response.substring(15));
 					if (id == 0 )
 					{
 						opponentIcon  = optionLabels[0];
