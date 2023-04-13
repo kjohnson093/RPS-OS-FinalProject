@@ -19,8 +19,10 @@ public class RockPaperScissorsServer {
 			//Connect players
 			Game.Player player1 = game.new Player (listener.accept());
 			player1.setNumber(1);
+			System.out.println("Player 1 Connected");
 			Game.Player player2 = game.new Player (listener.accept());
 			player2.setNumber(2);
+			System.out.println("Player 2 Connected");
 			//Start game
 			player1.start();
 			player2.start();
@@ -51,9 +53,9 @@ class Game {
 	}
 
 
-	public boolean legalMove(Player player, int choice) {
+	public boolean legalMove(int player, int choice) {
 		//Check if player 1
-		if (player.getNumber() == 1)
+		if (player == 1)
 		{
 			//Check if choice already selected
 			if (player1choice == 0 || player1choice == 1 || player1choice == 2)
@@ -113,8 +115,7 @@ class Game {
 		public void run() {
 			try {
 				//Send to clients that player is connected
-				output.println("MESSAGE Player Connected");
-				output.println("MESSAGE Make your move");
+				output.println("MESSAGE Player Connected - Make your move");
 
 				//Process client commands
 				while(true) {
@@ -123,16 +124,18 @@ class Game {
 					//Player selects option
 					if(command.startsWith("MOVE"))
 					{
+						System.out.println("Received MOVE from Player" + this.getNumber());
 						//Parse choice and send to legalMove to setChoice
-						if (legalMove(this, Integer.parseInt(command.substring(5))))
+						if (legalMove(this.getNumber(), Integer.parseInt(command.substring(5))))
 						{
-							output.println("VALID_MOVE");
+							System.out.println("Sending VALID_MOVE " + (this.getNumber()-1));
+							output.println("VALID_MOVE " + (this.getNumber()-1));
 							output.println(playRound() ? "WIN_ROUND"
 									: hasWinner() ? "VICTORY"
 											: tie() ? "TIE"
 													: "");
 							//Clear choices for new round
-							newRound();
+							
 						}
 						else 
 						{
@@ -209,6 +212,8 @@ class Game {
 		//(TIE)
 		else if (player1choice == player2choice)
 		{
+			player1Wins++;
+			player2Wins++;
 		return true;
 		}
 		return false;
