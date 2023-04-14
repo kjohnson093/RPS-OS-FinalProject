@@ -15,17 +15,20 @@ public class RockPaperScissorsServer {
 		System.out.println("Server is Running");
 		try {
 			//Start a game
-			Game game = new Game();
-			//Connect players
-			Game.Player player1 = game.new Player (listener.accept());
-			player1.setNumber(1);
-			System.out.println("Player 1 Connected");
-			Game.Player player2 = game.new Player (listener.accept());
-			player2.setNumber(2);
-			System.out.println("Player 2 Connected");
-			//Start game
-			player1.start();
-			player2.start();
+			while (true) 
+			{
+				Game game = new Game();
+				//Connect players
+				Game.Player player1 = game.new Player (listener.accept());
+				player1.setNumber(1);
+				System.out.println("Player 1 Connected");
+				Game.Player player2 = game.new Player (listener.accept());
+				player2.setNumber(2);
+				System.out.println("Player 2 Connected");
+				//Start game
+				player1.start();
+				player2.start();
+			}
 
 		}
 		finally {
@@ -52,7 +55,7 @@ class Game {
 			player2choice = -1;
 	}
 
-
+	//Validates move and updates the player's choice
 	public boolean legalMove(int player, int choice) {
 		//Check if player 1
 		if (player == 1)
@@ -125,16 +128,33 @@ class Game {
 					if(command.startsWith("MOVE"))
 					{
 						System.out.println("Received MOVE from Player" + this.getNumber());
-						//Parse choice and send to legalMove to setChoice
+						//Verify move
+						//Parse choice and send to legalMove 
 						if (legalMove(this.getNumber(), Integer.parseInt(command.substring(5))))
 						{
-							System.out.println("Sending VALID_MOVE " + (this.getNumber()-1));
-							output.println("VALID_MOVE " + (this.getNumber()-1));
-							output.println(playRound() ? "WIN_ROUND"
-									: hasWinner() ? "VICTORY"
-											: tie() ? "TIE"
-													: "");
-							//Clear choices for new round
+							System.out.println("Sending VALID_MOVE " + Integer.parseInt(command.substring(5)));
+							output.println("VALID_MOVE " + Integer.parseInt(command.substring(5)));
+							//Attempt to play the round - will wait for other player's choice if unavailable
+							if (playRound())
+							{
+								output.println("WIN_ROUND");
+								//Clear choices for new round
+								newRound();
+							}
+							else if (hasWinner()) 
+							{
+								output.println("VICTORY");
+							}
+							else if (tie()) 
+							{
+								output.println("TIE");
+							}
+//							output.println(playRound() ? "WIN_ROUND"
+//									: hasWinner() ? "VICTORY"
+//											: tie() ? "TIE"
+//													: "");
+							
+							
 							
 						}
 						else 
