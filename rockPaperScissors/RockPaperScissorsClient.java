@@ -176,34 +176,26 @@ public class RockPaperScissorsClient {
 					//updates the players score and number of rounds played
 					playerScore++;
 					roundsPlayed++;
-					//checks for the number of times a player has won and if it equals 2, tells them they won the game or lost the game. otherwise it will display the score and the score of both players.
-					if (playerScore == 3) {
-						messageLabel.setText("Congratulations, you win the game!");
-						break;
-					} else if (opponentScore == 3) {
-						messageLabel.setText("Sorry, you lost the game.");
-						break;
-					} else {
-						messageLabel.setText(
-								"You won this round! Score: " + playerScore + "-" + opponentScore + ". Next round!");
-					}
+					messageLabel.setText("You won this round! Score: " + playerScore + "-" + opponentScore + ". Next round!");
 				} 
 				//checks to see if the player has won or lost the game 
-				else if (response.startsWith("DEFEAT")) {
+				else if (response.startsWith("LOSE_ROUND")) {
 					//updates the opponents scores and number of rounds played
 					opponentScore++;
 					roundsPlayed++;
-					//checks for the number of times a player has won and if it equals 2, tells them they won the game or lost the game. otherwise it will display the score and the score of both players.
-					if (playerScore == 3) {
+					messageLabel.setText("You lost this round. Score: " + playerScore + "-" + opponentScore + ". Next round!");
+				}
+				//looks for victory to identify a win for the current player
+				else if (response.startsWith("VICTORY")) {
 						messageLabel.setText("Congratulations, you win the game!");
+//						wantsToPlayAgain();
 						break;
-					} else if (opponentScore == 3) {
-						messageLabel.setText("Sorry, you lost the game.");
-						break;
-					} else {
-						messageLabel.setText(
-								"You lost this round. Score: " + playerScore + "-" + opponentScore + ". Next round!");
 					}
+				//checks to see if the player has won or lost the game 
+				else if (response.startsWith("DEFEAT")) {
+						messageLabel.setText("Sorry, you lost the game.");
+//						wantsToPlayAgain();
+						break;
 				}
 				//looks for TIE identifier and will notify the players that neither win
 				else if (response.startsWith("TIE")) {

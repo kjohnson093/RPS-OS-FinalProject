@@ -24,8 +24,8 @@ public class RockPaperScissorsServer {
 				System.out.println("Player 1 Connected");
 				Game.Player player2 = game.new Player (listener.accept());
 				System.out.println("Player 2 Connected");
-				player1.setNumber(1);
-				player2.setNumber(2);
+				game.setPlayer1(player1);
+				game.setPlayer2(player2);
 				player1.setOpponent(player2);
 				player2.setOpponent(player1);
 				//Start game
@@ -52,11 +52,25 @@ class Game {
 	int player2choice = -1;
 	int player1Wins = 0;
 	int player2Wins = 0;
+	Player player1;
+	Player player2;
 
 	public void newRound() {
 			player1choice = -1;
 			player2choice = -1;
+			player1.setRoundWinner(false);
+			player2.setRoundWinner(false);
 	}
+	
+	public void setPlayer1(Player p) {
+		this.player1 = p;
+		p.setNumber(1);
+	}
+	public void setPlayer2(Player p) {
+		this.player2 = p;
+		p.setNumber(2);
+	}
+	
 
 	//Validates move and updates the player's choice
 	public synchronized boolean legalMove(int player, int choice) {
@@ -119,15 +133,24 @@ class Game {
 			this.number = n;
 		}
 		
+		//Sets the players opponent to keep threads in sync
 		public void setOpponent(Player opponent) {
             this.opponent = opponent;
         }
+		
+		//Sets the winner of the round, for sending correct messages to each client in a game
+		public void setRoundWinner (boolean w) {
+			this.roundWinner = w;
+		}
+		
+		
 		
 		//Method for updating player if the other player played first
 		//Returns the other players writer so the server can print to it
 		public PrintWriter getPrintWriter() {
 			return this.output;
 		}
+		
 
 		//Runs the game
 		public void run() {
@@ -148,18 +171,39 @@ class Game {
 						if (legalMove(this.getNumber(), Integer.parseInt(command.substring(5))))
 						{
 							System.out.println("Sending VALID_MOVE " + Integer.parseInt(command.substring(5)));
+							
 							output.println("VALID_MOVE " + Integer.parseInt(command.substring(5)));
+							if (player1choice == -1 || player2choice == -1)
 							opponent.getPrintWriter().println("OPPONENT_MOVED " + Integer.parseInt(command.substring(5)));
 							//Attempt to play the round - will wait for other player's choice if unavailable
 							if (playRound())
 							{
+								if (roundWinner) {
 								output.println("WIN_ROUND");
+								opponent.getPrintWriter().println("LOSE_ROUND");
+								}
+								else if (opponent.roundWinner){
+									output.println("LOSE_ROUND");
+									opponent.getPrintWriter().println("WIN_ROUND");
+								}
+								else {
+									output.println("TIE");
+									opponent.getPrintWriter().println("TIE");
+								}
 								//Clear choices for new round
 								newRound();
 							}
 							else if (hasWinner()) 
 							{
-								output.println("VICTORY");
+								if (roundWinner) {
+									output.println("VICTORY");
+									opponent.getPrintWriter().println("DEFEAT");
+								}
+								else {
+									output.println("DEFEAT");
+									opponent.getPrintWriter().println("VICTORY");
+								}
+
 							}
 							else if (tie()) 
 							{
@@ -198,8 +242,14 @@ class Game {
 	}
 
 	public boolean hasWinner() {
-		if (player1Wins == 2 || player2Wins == 2 )
+		if (player1Wins >= 3  )
 		{
+			player1.setRoundWinner(true);
+			return true;
+		}
+		else if (player2Wins >= 3  )
+		{
+			player2.setRoundWinner(true);
 			return true;
 		}
 
@@ -212,18 +262,21 @@ class Game {
 		if (player1choice == 0 && player2choice == 2)
 		{
 			player1Wins++;
+			player1.setRoundWinner(true);
 			return true;
 		}
 		//(WIN)Player 1 -  Paper, Player 2 - Rock
 		else if (player1choice == 1 && player2choice == 0)
 		{
 			player1Wins++;
+			player1.setRoundWinner(true);
 			return true;
 		}
 		//(WIN)Player 1 -  Scissors, Player 2 - Paper
 		else if (player1choice == 2 && player2choice == 1)
 		{
 			player1Wins++;
+			player1.setRoundWinner(true);
 			return true;
 		}
 
@@ -231,25 +284,26 @@ class Game {
 		else if (player2choice == 0 && player1choice == 2)
 		{
 			player2Wins++;
+			player2.setRoundWinner(true);
 			return true;
 		}
 		//(WIN)Player 2 -  Paper, Player 2 - Rock
 		else if (player2choice == 1 && player1choice == 0)
 		{
 			player2Wins++;
+			player2.setRoundWinner(true);
 			return true;
 		}
 		//(WIN)Player 2 -  Scissors, Player 2 - Paper
 		else if (player2choice == 2 && player1choice == 1)
 		{
 			player2Wins++;
+			player2.setRoundWinner(true);
 			return true;
 		}
 		//(TIE)
 		else if (player1choice == player2choice)
 		{
-			player1Wins++;
-			player2Wins++;
 		return true;
 		}
 		return false;
