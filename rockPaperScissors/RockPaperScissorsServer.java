@@ -20,11 +20,14 @@ public class RockPaperScissorsServer {
 				Game game = new Game();
 				//Connect players
 				Game.Player player1 = game.new Player (listener.accept());
-				player1.setNumber(1);
+				
 				System.out.println("Player 1 Connected");
 				Game.Player player2 = game.new Player (listener.accept());
-				player2.setNumber(2);
 				System.out.println("Player 2 Connected");
+				player1.setNumber(1);
+				player2.setNumber(2);
+				player1.setOpponent(player2);
+				player2.setOpponent(player1);
 				//Start game
 				player1.start();
 				player2.start();
@@ -56,7 +59,7 @@ class Game {
 	}
 
 	//Validates move and updates the player's choice
-	public boolean legalMove(int player, int choice) {
+	public synchronized boolean legalMove(int player, int choice) {
 		//Check if player 1
 		if (player == 1)
 		{
@@ -85,9 +88,11 @@ class Game {
 	// Player class to output game state data and input player actions
 	class Player extends Thread {
 		Socket socket;
+		Player opponent;
 		BufferedReader input;
 		PrintWriter output;
 		private int number;
+		boolean roundWinner = false;
 
 		//Constructor for the player
 		//Creates a read and writer to send to and receive from server
@@ -113,6 +118,16 @@ class Game {
 		public void setNumber(int n) {
 			this.number = n;
 		}
+		
+		public void setOpponent(Player opponent) {
+            this.opponent = opponent;
+        }
+		
+		//Method for updating player if the other player played first
+		//Returns the other players writer so the server can print to it
+		public PrintWriter getPrintWriter() {
+			return this.output;
+		}
 
 		//Runs the game
 		public void run() {
@@ -134,6 +149,7 @@ class Game {
 						{
 							System.out.println("Sending VALID_MOVE " + Integer.parseInt(command.substring(5)));
 							output.println("VALID_MOVE " + Integer.parseInt(command.substring(5)));
+							opponent.getPrintWriter().println("OPPONENT_MOVED " + Integer.parseInt(command.substring(5)));
 							//Attempt to play the round - will wait for other player's choice if unavailable
 							if (playRound())
 							{
@@ -246,6 +262,7 @@ class Game {
 		}
 		return false;
 	}
+	
 
 }
 

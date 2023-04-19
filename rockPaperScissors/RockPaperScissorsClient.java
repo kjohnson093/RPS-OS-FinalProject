@@ -84,7 +84,7 @@ public class RockPaperScissorsClient {
 		paperButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				out.println("MOVE 1");
-				System.out.print("paper was sent");
+				//System.out.println("paper was sent");
 				currentOption = optionLabels[1];
 			}
 		});
@@ -96,7 +96,7 @@ public class RockPaperScissorsClient {
 		scissorsButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				out.println("MOVE 2");
-				System.out.print("scissors was sent");
+				//System.out.println("scissors was sent");
 				currentOption = optionLabels[2];
 			}
 		});
@@ -121,9 +121,37 @@ public class RockPaperScissorsClient {
 				if (response.startsWith("WELCOME")) {
 					messageLabel.setText("You are player " + response.charAt(8) + ". Make your move.");
 				} 
-				//looks for validation from server to see if the opponent has moved
+				//looks for validation from server to see if move attempt valid
 				else if (response.startsWith("VALID_MOVE")) {
 					int id = Integer.parseInt(response.substring(11));
+					
+//					if (id == 0 )
+//					{
+//						opponentIcon  = optionLabels[0];
+//					}
+//					else if (id == 1)
+//					{
+//						opponentIcon = optionLabels[1];
+//					}
+//					else 
+//					{
+//						opponentIcon = optionLabels[2];
+//					}
+					
+				    //sets the label text to display each players choices
+					// Check if opponent has picked
+					if (opponentIcon!=null ) {
+						 messageLabel.setText("You chose " + currentOption + ". Opponent chose " + opponentIcon + ".");
+					}
+					else {
+						 messageLabel.setText("You chose " + currentOption + ". Waiting for opponent to choose.");
+
+					}
+				} 
+				//looks for validation from server to see if the opponent has moved
+				else if (response.startsWith("OPPONENT_MOVED ")) {
+					int id = Integer.parseInt(response.substring(15));
+					
 					if (id == 0 )
 					{
 						opponentIcon  = optionLabels[0];
@@ -136,8 +164,11 @@ public class RockPaperScissorsClient {
 					{
 						opponentIcon = optionLabels[2];
 					}
-				    //sets the label text to display each players choices
-				    messageLabel.setText("You chose " + currentOption + ". Opponent chose " + opponentIcon + ".");
+					
+					//Tells player the opponent has moved
+						 messageLabel.setText("Opponent moved. Make your choice!");
+
+					
 				} 
 			
 				//looks for victory to identify a win for the current player
@@ -146,10 +177,10 @@ public class RockPaperScissorsClient {
 					playerScore++;
 					roundsPlayed++;
 					//checks for the number of times a player has won and if it equals 2, tells them they won the game or lost the game. otherwise it will display the score and the score of both players.
-					if (playerScore == 2) {
+					if (playerScore == 3) {
 						messageLabel.setText("Congratulations, you win the game!");
 						break;
-					} else if (opponentScore == 2) {
+					} else if (opponentScore == 3) {
 						messageLabel.setText("Sorry, you lost the game.");
 						break;
 					} else {
@@ -163,10 +194,10 @@ public class RockPaperScissorsClient {
 					opponentScore++;
 					roundsPlayed++;
 					//checks for the number of times a player has won and if it equals 2, tells them they won the game or lost the game. otherwise it will display the score and the score of both players.
-					if (playerScore == 2) {
+					if (playerScore == 3) {
 						messageLabel.setText("Congratulations, you win the game!");
 						break;
-					} else if (opponentScore == 2) {
+					} else if (opponentScore == 3) {
 						messageLabel.setText("Sorry, you lost the game.");
 						break;
 					} else {
