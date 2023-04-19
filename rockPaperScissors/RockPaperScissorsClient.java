@@ -125,19 +125,6 @@ public class RockPaperScissorsClient {
 				else if (response.startsWith("VALID_MOVE")) {
 					int id = Integer.parseInt(response.substring(11));
 					
-//					if (id == 0 )
-//					{
-//						opponentIcon  = optionLabels[0];
-//					}
-//					else if (id == 1)
-//					{
-//						opponentIcon = optionLabels[1];
-//					}
-//					else 
-//					{
-//						opponentIcon = optionLabels[2];
-//					}
-					
 				    //sets the label text to display each players choices
 					// Check if opponent has picked
 					if (opponentIcon!=null ) {
@@ -171,14 +158,13 @@ public class RockPaperScissorsClient {
 					
 				} 
 			
-				//looks for victory to identify a win for the current player
+				//checks to see if the player has won or lost the game 
 				else if (response.startsWith("WIN_ROUND")) {
 					//updates the players score and number of rounds played
 					playerScore++;
 					roundsPlayed++;
 					messageLabel.setText("You won this round! Score: " + playerScore + "-" + opponentScore + ". Next round!");
 				} 
-				//checks to see if the player has won or lost the game 
 				else if (response.startsWith("LOSE_ROUND")) {
 					//updates the opponents scores and number of rounds played
 					opponentScore++;
@@ -191,7 +177,7 @@ public class RockPaperScissorsClient {
 //						wantsToPlayAgain();
 						break;
 					}
-				//checks to see if the player has won or lost the game 
+				//displays defeat for the current player
 				else if (response.startsWith("DEFEAT")) {
 						messageLabel.setText("Sorry, you lost the game.");
 //						wantsToPlayAgain();

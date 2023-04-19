@@ -143,8 +143,6 @@ class Game {
 			this.roundWinner = w;
 		}
 		
-		
-		
 		//Method for updating player if the other player played first
 		//Returns the other players writer so the server can print to it
 		public PrintWriter getPrintWriter() {
@@ -175,9 +173,10 @@ class Game {
 							output.println("VALID_MOVE " + Integer.parseInt(command.substring(5)));
 							if (player1choice == -1 || player2choice == -1)
 							opponent.getPrintWriter().println("OPPONENT_MOVED " + Integer.parseInt(command.substring(5)));
-							//Attempt to play the round - will wait for other player's choice if unavailable
+							//Attempt to play the round - will execute when both players have made a choice
 							if (playRound())
 							{
+								//Sends single round winner/loser update
 								if (roundWinner) {
 								output.println("WIN_ROUND");
 								opponent.getPrintWriter().println("LOSE_ROUND");
@@ -193,8 +192,10 @@ class Game {
 								//Clear choices for new round
 								newRound();
 							}
+							//Check if player has won at least 3 rounds
 							else if (hasWinner()) 
 							{
+								//Sends overall game winner/ loser
 								if (roundWinner) {
 									output.println("VICTORY");
 									opponent.getPrintWriter().println("DEFEAT");
@@ -205,18 +206,8 @@ class Game {
 								}
 
 							}
-							else if (tie()) 
-							{
-								output.println("TIE");
-							}
-//							output.println(playRound() ? "WIN_ROUND"
-//									: hasWinner() ? "VICTORY"
-//											: tie() ? "TIE"
-//													: "");
-							
-							
-							
 						}
+						//Send message for illegal move
 						else 
 						{
 							output.println("MESSAGE ?");
@@ -229,7 +220,7 @@ class Game {
 				}
 			}
 			catch (IOException e) {
-				System.out.println("Player died: " + e);
+				System.out.println("Player disconnected: " + e);
 			} finally 
 			{
 				try 
@@ -241,6 +232,8 @@ class Game {
 		}
 	}
 
+	//This method will check if either player has won 3 or more rounds
+	//Also sets round winner for ease of sending update messages from server
 	public boolean hasWinner() {
 		if (player1Wins >= 3  )
 		{
@@ -257,6 +250,7 @@ class Game {
 	}
 
 
+	//Method that actually plays the round. Returns true if both players have made a choice.
 	public boolean playRound() {
 		//(WIN)Player 1 -  Rock, Player 2 - Scissors
 		if (player1choice == 0 && player2choice == 2)
@@ -308,15 +302,6 @@ class Game {
 		}
 		return false;
 	}
-
-
-	public boolean tie() {
-		if (player1Wins == 2 && player2Wins == 2 ) {
-			return true;
-		}
-		return false;
-	}
-	
 
 }
 
